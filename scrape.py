@@ -15,14 +15,15 @@ class Scrape:
     user_details = {}
 
     def main (self):
-        print(f'Fetching {username} data..')
+        print(f'[FETCHING] {username} data..')
+        print(f"[FETCHING] POSTS..")
         self.fetch_user_posts()
+        print(f"[FETCHING] COMMENTS..")
         self.fetch_user_comments()
         self.save_user_details()
         return self.user_details
     
     def fetch_user_comments(self, lastcommentID=''):
-        print(f"Fetching Comments {len(self.hugeCommentsList)}..")
         url = f"https://gateway.reddit.com/desktopapi/v1/user/{username}/conversations?rtj=only&allow_over18=1&include=identity&after={lastcommentID}&dist=25&sort=new&t=all"
         result = req.get(url, headers={'User-agent': 'your bot 0.2'})
         comments = result.json()['comments']
@@ -33,11 +34,12 @@ class Scrape:
                 if 't' in media:
                     comment['created'] = datetime.fromtimestamp(comment['created']).strftime('%Y-%m-%d')
             self.hugeCommentsList.append(comment)
+            print(f"[FETCHING] {len(self.hugeCommentsList)} -> COMMENTS..")
         try:
             next_last_comment = list(comments.keys())[-1]
             fetch_user_comments(next_last_comment)
         except:
-            print(f'Reached the end of comments at {len(self.hugeCommentsList)}')
+            print(f'[=FINISHED=] FOUND {len(self.hugeCommentsList)} COMMENTS')
             user_obj = result.json()
             del user_obj["posts"]
             del user_obj["comments"]
@@ -46,7 +48,6 @@ class Scrape:
 
 
     def fetch_user_posts(self, lastPostID=0):
-        print(f"Fetching Posts {len(self.hugePostsList)}..")
         url = f"https://gateway.reddit.com/desktopapi/v1/user/{username}/posts?rtj=only&allow_over18=1&include=identity&after={lastPostID}&dist=25&sort=new&t=all"
         result = req.get(url, headers={'User-agent': 'your bot 0.2'})
         posts = result.json()["posts"]
@@ -56,29 +57,30 @@ class Scrape:
                 timestamp= ''.join(map(str,list(map(int,' '.join(str(post['created'])).split()))[:10]))
                 post['created'] = datetime.fromtimestamp(int(timestamp)).strftime('%Y-%m-%d')
                 self.hugePostsList.append(post)
+                print(f"[FETCHING] {len(self.hugePostsList)} -> POST..")
         try:
             next_last_post = list(posts.keys())[-1]
             return self.fetch_user_posts(next_last_post)
         except:
-            print(f'Reached the end of posts at {len(self.hugePostsList)}')
+            print(f'[=FINISHED=] FOUND {len(self.hugePostsList)} POSTS')
             return self.hugePostsList
 
 
     def save_user_details(self):
-        print("Saving details..")
-        savedComments = open(f"./{username}.json", "w")
+        print(f"[SAVING] USER DETAILS..")
+        savedComments = open(f"./output/{username}.json", "w")
         self.user_details = {
             "comments": self.hugeCommentsList,
             "posts": self.hugePostsList,
             **self.user_details  # destruct
         }
         savedComments.write(json.dumps(self.user_details))
-        print("Done!")
+        print(f"[SAVED] AT ./output/{username}.json")
         return self.user_details
 
 
     def loop_on_comments(self):
-        savedComments = json.loads(open(f"./{username}.json", "r").read())
+        savedComments = json.loads(open(f"./output/{username}.json", "r").read())
         for comment in savedComments:
             if comment['author'] == username:
                 media = comment['media']['richtextContent']['document'][0]['c'][0]
@@ -131,8 +133,3 @@ class Scrape:
 scraper = Scrape()
 scraper.main()
 scraper.generate_heatmap('posts')
-# fetch_user_comments()
-# fetch_user_posts()
-# save_user_details()
-# loop_on_comments()
-
