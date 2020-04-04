@@ -17,12 +17,14 @@ class Scrape:
     def main (self):
         print(f'[FETCHING] {username} data..')
         print(f"[FETCHING] POSTS..")
+        # recursively fetch user posts
         self.fetch_user_posts()
         print(f"[FETCHING] COMMENTS..")
+        # recursively fetch user posts
         self.fetch_user_comments()
         self.save_user_details()
         return self.user_details
-    
+    # recursively fetch user posts
     def fetch_user_comments(self, lastcommentID=''):
         url = f"https://gateway.reddit.com/desktopapi/v1/user/{username}/conversations?rtj=only&allow_over18=1&include=identity&after={lastcommentID}&dist=25&sort=new&t=all"
         result = req.get(url, headers={'User-agent': 'your bot 0.2'})
@@ -87,7 +89,7 @@ class Scrape:
                 if 't' in media:
                     print(comment['author'], media['t'], datetime.fromtimestamp(
                         comment['created']).strftime('%Y-%m-%d'))
-
+    # Make a key, value pairs of the dates, comments respectively.
     def structure_commentslist (self):
         comments = self.hugeCommentsList
         commentsList = {}
@@ -115,7 +117,8 @@ class Scrape:
                 commentsList[id] += additional
         return {'commentsList':commentsList, 'max_length':max_length}
     
-    def generate_heatmap(self, type) :
+    # type: "posts" or "comments"
+    def generate_heatmap(self, type):
         array = []
         max_length = 1
         if type == 'posts':
