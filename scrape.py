@@ -7,14 +7,18 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-username = sys.argv[1]
+try:
+    username = sys.argv[1]
+except:
+    print("Please insert a valid reddit username")
+    exit(0)
 
 class Scrape:
     hugeCommentsList = []
     hugePostsList = []
     user_details = {}
 
-    def main (self):
+    def main(self):
         print(f'[FETCHING] {username} data..')
         print(f"[FETCHING] POSTS..")
         # recursively fetch user posts
@@ -25,6 +29,7 @@ class Scrape:
         self.save_user_details()
         return self.user_details
     # recursively fetch user posts
+
     def fetch_user_comments(self, lastcommentID=''):
         url = f"https://gateway.reddit.com/desktopapi/v1/user/{username}/conversations?rtj=only&allow_over18=1&include=identity&after={lastcommentID}&dist=25&sort=new&t=all"
         result = req.get(url, headers={'User-agent': 'your bot 0.2'})
@@ -34,7 +39,8 @@ class Scrape:
             if not comment in self.hugeCommentsList:
                 media = comment['media']['richtextContent']['document'][0]['c'][0]
                 if 't' in media:
-                    comment['created'] = datetime.fromtimestamp(comment['created']).strftime('%Y-%m-%d')
+                    comment['created'] = datetime.fromtimestamp(
+                        comment['created']).strftime('%Y-%m-%d')
             self.hugeCommentsList.append(comment)
             print(f"[FETCHING] {len(self.hugeCommentsList)} -> COMMENTS..")
         try:
@@ -48,7 +54,6 @@ class Scrape:
             self.user_details = user_obj
             return self.hugeCommentsList
 
-
     def fetch_user_posts(self, lastPostID=0):
         url = f"https://gateway.reddit.com/desktopapi/v1/user/{username}/posts?rtj=only&allow_over18=1&include=identity&after={lastPostID}&dist=25&sort=new&t=all"
         result = req.get(url, headers={'User-agent': 'your bot 0.2'})
@@ -56,8 +61,10 @@ class Scrape:
         for id in posts:
             post = posts[id]
             if not post in self.hugePostsList:
-                timestamp= ''.join(map(str,list(map(int,' '.join(str(post['created'])).split()))[:10]))
-                post['created'] = datetime.fromtimestamp(int(timestamp)).strftime('%Y-%m-%d')
+                timestamp = ''.join(
+                    map(str, list(map(int, ' '.join(str(post['created'])).split()))[:10]))
+                post['created'] = datetime.fromtimestamp(
+                    int(timestamp)).strftime('%Y-%m-%d')
                 self.hugePostsList.append(post)
                 print(f"[FETCHING] {len(self.hugePostsList)} -> POST..")
         try:
@@ -66,7 +73,6 @@ class Scrape:
         except:
             print(f'[=FINISHED=] FOUND {len(self.hugePostsList)} POSTS')
             return self.hugePostsList
-
 
     def save_user_details(self):
         print(f"[SAVING] USER DETAILS..")
@@ -80,9 +86,9 @@ class Scrape:
         print(f"[SAVED] AT ./output/{username}.json")
         return self.user_details
 
-
     def loop_on_comments(self):
-        savedComments = json.loads(open(f"./output/{username}.json", "r").read())
+        savedComments = json.loads(
+            open(f"./output/{username}.json", "r").read())
         for comment in savedComments:
             if comment['author'] == username:
                 media = comment['media']['richtextContent']['document'][0]['c'][0]
@@ -90,24 +96,25 @@ class Scrape:
                     print(comment['author'], media['t'], datetime.fromtimestamp(
                         comment['created']).strftime('%Y-%m-%d'))
     # Make a key, value pairs of the dates, comments respectively.
-    def structure_commentslist (self):
+
+    def structure_commentslist(self):
         comments = self.hugeCommentsList
         commentsList = {}
         max_length = 0
         for comment in comments:
-            created=comment['created']
+            created = comment['created']
             if created not in commentsList:
-                commentsList[created] = [1] # thats count 1
+                commentsList[created] = [1]  # thats count 1
             else:
                 if type(commentsList[created]) == int:
                     new_value = [commentsList[created]]
                 else:
                     new_value = commentsList[created]
-                    
+
                 last_elem = new_value[len(new_value)-1]
                 new_value.append(last_elem+1)
                 if len(new_value) > max_length:
-                    max_length=len(new_value)
+                    max_length = len(new_value)
                 commentsList[created] = new_value
 
         for id in commentsList:
@@ -115,8 +122,8 @@ class Scrape:
             if len(list) < max_length:
                 additional = [0] * (max_length - len(list))
                 commentsList[id] += additional
-        return {'commentsList':commentsList, 'max_length':max_length}
-    
+        return {'commentsList': commentsList, 'max_length': max_length}
+
     # type: "posts" or "comments"
     def generate_heatmap(self, type):
         array = []
@@ -126,12 +133,14 @@ class Scrape:
             array = List['commentsList']
             max_length = List['max_length']
         # else if type == 'comments':
-            
-        structured = pd.DataFrame(array, index=[i for i in range(0, max_length)])
-        plt.figure(figsize=(100,300))
+
+        structured = pd.DataFrame(
+            array, index=[i for i in range(0, max_length)])
+        plt.figure(figsize=(100, 300))
         plt.title("Average Arrival Delay for Each Airline, by Month")
-        ax = sns.heatmap(structured,annot=True,square=True)
+        ax = sns.heatmap(structured, annot=True, square=True)
         sns.set(font_scale=1)
+
 
 scraper = Scrape()
 scraper.main()
