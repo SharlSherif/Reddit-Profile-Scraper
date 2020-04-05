@@ -1,4 +1,4 @@
-# Introudction
+# Introduction
 This project scrapes the entire public history of a Reddit user given their username,
 specifically:
 - Basic user information
@@ -6,29 +6,40 @@ specifically:
 - All posts ever created by that user
 - Subreddits being followed by that user
 
-It has a function that generates a heatmap of the comments according to the date timestamp they were created at.\
-The user information is saved in a JSON format.
+It has a function that generates a heatmap of the comments according to the date timestamp they were created at. The user information is saved in a JSON format.
 # What is the end goal ?
 To be able to analyze a person behavior based on their Reddit history using Data Science techniques.\
 It's indeed a very ambitious project, but it will be a great way to learn about the basics of Data Science along the way.
 
 # Setup
-Run `pip install -r requirements.txt`.
+Have Python 3.x installed and run `pip3 install -r requirements.txt`.
 
 # Usage
-*Assuming you installed all the required libraries*\
-Run the scraper by `py scrape.py USERNAME`\
-replace `USERNAME` to a valid reddit username
+```
+python3 scrape.py [reddit username]
+```
 
-After passing a valid reddit username\
-`py scrape.py SilentButDeadlySquid`
+If everything worked properly, you will see something like:
 
-If everything worked properly, you will see this :
+```
+[FETCHING] [reddit username] data..
+[FETCHING] POSTS..
+[FETCHING] 1 -> POST..
+[FETCHING] 2 -> POST..
+...
+[FETCHING] 32 -> POST..
+[=FINISHED=] FOUND 32 POSTS
+[FETCHING] COMMENTS..
+[FETCHING] 1 -> COMMENTS..
+[FETCHING] 2 -> COMMENTS..
+...
+[FETCHING] 38 -> COMMENTS..
+[=FINISHED=] FOUND 38 COMMENTS
+[SAVING] USER DETAILS..
+[SAVED] AT ./output/[reddit username].json
+```
 
-![https://i.imgur.com/7YeZ2GX.png](https://i.imgur.com/7YeZ2GX.png)\
-![https://i.imgur.com/uCRUDG0.png](https://i.imgur.com/uCRUDG0.png)
-
-You'll find the complete data in `./output/SilentButDeadlySquid.json`
+Then, you will find the complete data in `./output/[reddit username].json`
 
 # Heatmap
 
