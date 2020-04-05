@@ -12,11 +12,8 @@ The user information is saved in a JSON format.
 To be able to analyze a person behavior based on their Reddit history using Data Science techniques.\
 It's indeed a very ambitious project, but it will be a great way to learn about the basics of Data Science along the way.
 
-# Prerequisites
-You need to have Python 3.x along with the following installed:
-- Pandas
-- Seaborn
-- Pyplot 
+# Setup
+Run `pip install -r requirements.txt`.
 
 # Usage
 *Assuming you installed all the required libraries*\
